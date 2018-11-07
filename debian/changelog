@@ -1,3 +1,9 @@
+ec2-consistent-snapshot (0.71-webfactory1) bionic; urgency=low
+
+  * Build for Launchpad PPA webfactory
+
+ -- Matthias Pigulla <mp@webfactory.de>  Wed, 07 Nov 2018 21:27:22 +0100
+
 ec2-consistent-snapshot (0.71) bionic; urgency=low
 
   * Fix snap packaging issue for Bionic. (Thanks to @sidprak)
