@@ -1,3 +1,10 @@
+ec2-consistent-snapshot (0.71-webfactory2) bionic; urgency=low
+
+  * Merges https://github.com/alestic/ec2-consistent-snapshot/pull/109 to
+    support NVMe devices
+
+ -- Matthias Pigulla <mp@webfactory.de>  Wed, 23 Jan 2019 23:21:17 +0100
+
 ec2-consistent-snapshot (0.71-webfactory1) bionic; urgency=low
 
   * Build for Launchpad PPA webfactory
