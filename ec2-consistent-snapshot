@@ -452,6 +452,11 @@ sub discover_volume_ids {
     $ebs_volume_ids{$bd->device_name} = $bd->ebs->volume_id if $bd->ebs;
   }
 
+  foreach my $nvme_entry (grep { /\/dev\/nvme/ } qx(nvme list 2>/dev/null)) {
+    my ($device, $volume_id) = $nvme_entry =~ /(\/dev\/nvme\d+n\d+)(?:p\d+)?\s+vol([a-z0-9]+)/;
+    $ebs_volume_ids{$device} = "vol-$volume_id";
+  }
+
   unless ( %ebs_volume_ids ) {
     warn "$Prog: ERROR: Unable to find EBS block devices for ", $ec2_instance->instance_id, "\n";
     return ();
@@ -521,17 +526,19 @@ sub discover_volume_ids {
     }
 
     for my $device (@devices) {
-      my ($ec2_device, $ec2_device_2, $ec2_device_3, $volume_id);
-      $ec2_device = $ec2_device_2 = $ec2_device_3 = "/dev/$device";
+      my ($ec2_device, $ec2_device_2, $ec2_device_3, $ec2_device_4, $volume_id);
+      $ec2_device = $ec2_device_2 = $ec2_device_3 = $ec2_device_4 = "/dev/$device";
 
       $ec2_device =~ s/\bxvd/sd/;
       $ec2_device_2 =~ s/\bxvd([a-z])\d?/sd$1/;
       $ec2_device_3 =~ s/\bxvd([a-z]\d)/sd$1/;
+      $ec2_device_4 =~ s/\b(nvme\dn\d)p\d/$1/;
 
       # Root devices are usually /dev/sda1 however secondary partition can be formatted as the first partition or the whole device
       $volume_id = $ebs_volume_ids{$ec2_device} if defined $ebs_volume_ids{$ec2_device};
       $volume_id = $ebs_volume_ids{$ec2_device_2} if defined $ebs_volume_ids{$ec2_device_2};
       $volume_id = $ebs_volume_ids{$ec2_device_3} if defined $ebs_volume_ids{$ec2_device_3};
+      $volume_id = $ebs_volume_ids{$ec2_device_4} if defined $ebs_volume_ids{$ec2_device_4};
 
       unless ( defined $volume_id ) {
         warn "$Prog: ERROR: Unable to determine volume id for device $device in mount $fs\n";
